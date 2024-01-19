@@ -9,53 +9,56 @@ import face_recognition
 import numpy as np
 import os
 import subprocess
+from PIL import ImageTk, Image
+import customtkinter
 
-class FaceRecognitionAppGUI:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Face Recognition Attendance System")
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+class FaceRecognitionApp:
+    def __init__(self, master):
+        self.master = master
+        self.master.geometry("800x640")
+        self.master.title("Face Recognition Attendance System")
 
-        # Set the background color of the frame
-        self.root.configure(bg="#34495E")
+        customtkinter.set_appearance_mode("System")
+        customtkinter.set_default_color_theme("blue")
 
-        # Create a style for buttons
-        style = ttk.Style()
-        style.configure("TButton",
-                        padding=10,
-                        font=('Helvetica', 14),
-                        background='#3498db',
-                        foreground='#ffffff',
-                        borderwidth=2,
-                        relief="groove")
+        self.selected_csv_file = None
 
-        # Create a frame for better organization
-        self.frame = ttk.Frame(root, padding="20")
-        self.frame.grid(row=0, column=0, sticky="nsew")
+        self.setup_ui()
 
-        # Create a label for the heading
-        heading_label = ttk.Label(self.frame, text="Face Recognition Attendance Management System",
-                                font=('Helvetica', 18), background="#34495E", foreground="#ffffff")
-        heading_label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
+    def setup_ui(self):
+        img1 = ImageTk.PhotoImage(Image.open("pattern.png"))
+        self.l1 = customtkinter.CTkLabel(master=self.master, image=img1)
+        self.l1.pack()
 
-        # Create buttons
-        self.start_button = ttk.Button(self.frame, text="Start Attendance", command=self.start_attendance)
-        self.stop_button = ttk.Button(self.frame, text="Stop Attendance", command=self.stop_attendance)
+        self.frame = customtkinter.CTkFrame(master=self.l1, width=500, height=450, corner_radius=15)
+        self.frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
-        self.attendance_list_button = ttk.Button(self.frame, text="Attendance List",  command=self.show_attendance_list)
-        #self.attendance_list_dropdown = ttk.Combobox(self.frame, textvariable=self.selected_csv_file, state="readonly")
-        self.selected_csv_file = tk.StringVar()
-        self.csv_dropdown = ttk.Combobox(self.frame, textvariable=self.selected_csv_file, state="readonly")
-        self.csv_dropdown.bind("<<ComboboxSelected>>", self.on_csv_dropdown_selected)
+        l2 = customtkinter.CTkLabel(master=self.frame, text="ATTENDANCE MADE EASY", font=('Century Gothic', 20, 'bold'))
+        l2.place(x=135, y=45)
 
+        self.start_button = customtkinter.CTkButton(master=self.frame, width=200, height=50, text="Start Attendance",
+                                               corner_radius=10, font=('Arial', 16), command=self.start_attendance)
+        self.start_button.place(x=40, y=150)
 
-        # Set button positions
-        self.start_button.grid(row=1, column=0, padx=10, pady=10, sticky='ew')
-        self.stop_button.grid(row=1, column=1, padx=10, pady=10, sticky='ew')
+        self.stop_button = customtkinter.CTkButton(master=self.frame, width=200, height=50, text="Stop Attendance",
+                                              corner_radius=10, font=('Arial', 16), command=self.stop_attendance)
+        self.stop_button.place(x=270, y=150)
 
-        #self.attendance_list_button.grid(row=2, column=0, padx=10, pady=10, sticky='ew')
-        self.attendance_list_button.grid(row=2, column=1, padx=10, pady=10, sticky='ew')
-        self.csv_dropdown.grid(row=2, column=1, padx=10, pady=10, sticky='ew')
+        self.label_combobox = customtkinter.CTkLabel(master=self.frame, text="Attendance Files:", font=('Arial', 20, 'bold'))
+        self.label_combobox.place(x=65, y=250)
+
+        self.attendance_list_combobox = ttk.Combobox(master=self.frame, width=12, height=40, font=('Arial', 12))
+        self.attendance_list_combobox['values'] = ("Option 1", "Option 2", "Option 3")  # Example values
+        self.attendance_list_combobox.set("Select")  # Set default value
+        self.attendance_list_combobox.place(x=230, y=250)
+        self.attendance_list_combobox.bind("<<ComboboxSelected>>", self.on_csv_dropdown_selected)
+        self.attendance_list_combobox.bind("<FocusOut>", self.reset_combobox)
+
+        self.update_csv_dropdown()
+
+        self.open_button = customtkinter.CTkButton(master=self.frame, width=60, height=28, text="Open",
+                                                   corner_radius=6, font=('Arial', 12), command=self.open_selected_csv_file)
+        self.open_button.place(x=365, y=248)
 
         # Bind button events
         self.start_button.bind("<Enter>", self.on_enter)
@@ -63,47 +66,31 @@ class FaceRecognitionAppGUI:
 
         self.stop_button.bind("<Enter>", self.on_enter)
         self.stop_button.bind("<Leave>", self.on_leave)   
-         
-        self.attendance_list_button.bind("<Enter>", self.on_enter)
-        self.attendance_list_button.bind("<Leave>", self.on_leave)
+        
+        self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        self.update_csv_dropdown()
-
-
-        root.protocol("WM_DELETE_WINDOW", self.on_closing)
-
-    def update_csv_dropdown(self):
-         # Fetch the list of CSV files in the directory for attendance list
-        csv_files= [f for f in os.listdir() if f.endswith(".csv")]
-        self.csv_dropdown["values"] = csv_files
+        self.master.mainloop()
     
-    def on_csv_dropdown_selected(self, event):
-        selected_csv_file = self.selected_csv_file.get()
-        if selected_csv_file:
-            # Do something with the selected CSV file (e.g., open it)
-            try:
-                subprocess.Popen(["start", "excel", selected_csv_file], shell=True)
-            except Exception as e:
-                messagebox.showerror("Error", f"Unable to open file: {str(e)}")
+    def reset_combobox(self, event):
+        self.attendance_list_combobox.set("Select")
 
-    def on_enter(self, event):
-        event.widget.configure(background='#2980b9')
-
-    def on_leave(self, event):
-        event.widget.configure(background='#3498db')
-
-    def on_closing(self):
-        if hasattr(self, 'video_capture') and self.video_capture is not None:
-            self.stop_attendance()
-        self.root.destroy()
-    
     def on_click(self, event, button_name):
         if button_name == "Start":
             self.start_attendance()
         elif button_name == "Stop":
             self.stop_attendance()
-        elif button_name == "List":
-            self.show_attendance_list()
+
+    def on_enter(self, event):
+        if event.widget.cget('state') == 'active':
+            event.widget.configure(bg='#16a085')  # Clicked color
+
+    def on_leave(self, event):
+        event.widget.configure(bg='Ba4a00')
+
+    def on_closing(self):
+        if hasattr(self, 'video_capture') and self.video_capture is not None:
+            self.stop_attendance()
+        self.master.destroy()
 
     def start_attendance(self):
         self.video_capture = cv2.VideoCapture(0)
@@ -112,23 +99,30 @@ class FaceRecognitionAppGUI:
         self.thread.start()
 
     def stop_attendance(self):
-        if hasattr(self, 'video_capture') and self.video_capture is not None: #if self.video_capture is not None:
+        if hasattr(self, 'video_capture') and self.video_capture is not None:
             self.stop_event = True
             self.thread.join()  # Wait for the thread to finish
             self.video_capture.release()
             cv2.destroyAllWindows()
             self.video_capture = None
-        
-    def show_attendance_list(self):
-        selected_csv_file = self.selected_csv_file.get()
-        if selected_csv_file:
-            with open(selected_csv_file, 'r') as csv_file:
-                csv_reader = csv.reader(csv_file)
-                for row in csv_reader:
-                    print(row)
-        self.update_csv_dropdown()            
-    
+
+    def update_csv_dropdown(self):
+         # Fetch the list of CSV files in the directory for attendance list
+        csv_files = [f for f in os.listdir() if f.endswith(".csv")]
+        self.attendance_list_combobox['values'] = csv_files
+
+    def on_csv_dropdown_selected(self, event):
+        self.selected_csv_file = self.attendance_list_combobox.get()
+
+    def open_selected_csv_file(self):
+        if self.selected_csv_file:
+            try:
+                subprocess.Popen(["start", "excel", self.selected_csv_file], shell=True)
+            except Exception as e:
+                messagebox.showerror("Error", f"Unable to open file: {str(e)}")
+
     def attendance_thread(self):
+        # For demonstration purposes, I'm leaving the face recognition logic as in your provided code
         aastha_image = face_recognition.load_image_file(r"D:\DesktopApp\photos\aastha.jpeg")
         aastha_encoding = face_recognition.face_encodings(aastha_image)[0]
 
@@ -136,7 +130,7 @@ class FaceRecognitionAppGUI:
         tesla_encoding = face_recognition.face_encodings(tesla_image)[0]
         
         known_face_encoding = [aastha_encoding, tesla_encoding]
-        known_faces_names = ["aastha", "tesla"]
+        known_faces_names = ["Aastha", "Tesla"]
 
         students = known_faces_names.copy()
 
@@ -199,7 +193,7 @@ class FaceRecognitionAppGUI:
                                 current_time = now.strftime("%H-%M-%S")
                                 lnwriter.writerow([name, current_time]) #written to csv file.
 
-                cv2.imshow("attendence system", frame) # display the video feed.
+                cv2.imshow("Attendence System", frame) # display the video feed.
                 if cv2.waitKey(1) & 0xFF == ord('q'): #if key is q then its terminated.
                     break
                 
@@ -208,6 +202,4 @@ class FaceRecognitionAppGUI:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}+0+0")
-    app = FaceRecognitionAppGUI(root)
-    root.mainloop()
+    app = FaceRecognitionApp(root)
