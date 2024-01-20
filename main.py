@@ -85,7 +85,7 @@ class FaceRecognitionApp:
             event.widget.configure(bg='#16a085')  # Clicked color
 
     def on_leave(self, event):
-        event.widget.configure(bg='Ba4a00')
+        event.widget.configure(bg='#Ba4a00')
 
     def on_closing(self):
         if hasattr(self, 'video_capture') and self.video_capture is not None:
@@ -123,14 +123,14 @@ class FaceRecognitionApp:
 
     def attendance_thread(self):
         # For demonstration purposes, I'm leaving the face recognition logic as in your provided code
-        aastha_image = face_recognition.load_image_file(r"D:\DesktopApp\photos\aastha.jpeg")
-        aastha_encoding = face_recognition.face_encodings(aastha_image)[0]
+        #aastha_image = face_recognition.load_image_file(r"D:\DesktopApp\photos\aastha.jpeg")
+        #aastha_encoding = face_recognition.face_encodings(aastha_image)[0]
 
         tesla_image = face_recognition.load_image_file(r"D:\DesktopApp\photos\tesla.jpeg")
         tesla_encoding = face_recognition.face_encodings(tesla_image)[0]
         
-        known_face_encoding = [aastha_encoding, tesla_encoding]
-        known_faces_names = ["Aastha", "Tesla"]
+        known_face_encoding = [tesla_encoding]
+        known_faces_names = ["Tesla"]
 
         students = known_faces_names.copy()
 
