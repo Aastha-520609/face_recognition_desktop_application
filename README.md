@@ -2,14 +2,23 @@
 
 ## Attendence Made Easy
 
-### Description
-The Face Recognition Attendance System is a Python-based application designed to simplify attendance tracking through face recognition. The system utilizes tkinter for the graphical user interface and integrates the face_recognition library for real-time face recognition.
+### This is the visual representation of the desktop application.
 
-### Images to the working system can be viewed inside the following directory
+
+
+
+
+
+###Images to the working system can be viewed inside the following directory
+
 - main_directory/system_images/home_page.jpg
 - main_directory/system_images/attendence_page.jpg
 - main_directory/system_images/attendence_list.jpg
 - main_directory/system_images/csv_files.jpg
+
+
+### Description
+The Face Recognition Attendance System is a Python-based application designed to simplify attendance tracking through face recognition. The system utilizes tkinter for the graphical user interface and integrates the face_recognition library for real-time face recognition.
 
 ### Features
 - **Real-Time Face Recognition:** Utilizes the webcam to perform real-time face recognition.
