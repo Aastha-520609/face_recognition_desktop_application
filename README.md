@@ -3,13 +3,12 @@
 ## Attendence Made Easy
 
 ### This is the visual representation of the desktop application.
+![image](https://github.com/Aastha-520609/face_recognition_desktop_application/assets/77205408/9e8364b3-19b8-4d27-9ffb-2a4a5683a084)
+![image](https://github.com/Aastha-520609/face_recognition_desktop_application/assets/77205408/cda1cbf1-1063-415e-ab9a-cf6f6ccf4d01)
+![image](https://github.com/Aastha-520609/face_recognition_desktop_application/assets/77205408/baa08856-4954-4e5c-bc94-144091a8c686)
+![image](https://github.com/Aastha-520609/face_recognition_desktop_application/assets/77205408/6519061a-c5d3-4085-aa7e-291602798e1c)
 
-
-
-
-
-
-###Images to the working system can be viewed inside the following directory
+### Images to the working system can be viewed inside the following directory
 
 - main_directory/system_images/home_page.jpg
 - main_directory/system_images/attendence_page.jpg
